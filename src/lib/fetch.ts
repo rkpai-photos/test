@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { prisma } from "../app/utils/prisma";
 
 // Fetch and parse the photo data

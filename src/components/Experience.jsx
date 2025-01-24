@@ -1,4 +1,4 @@
-import { Environment, Float, OrbitControls } from "@react-three/drei";
+import { Float, OrbitControls } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useEffect, useState } from "react";
 import { Book } from "./Book";
