@@ -1,4 +1,5 @@
 /* eslint-disable */
+// @ts-nocheck
 import { DynamoDB } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 
@@ -15,34 +16,43 @@ const dynamoDb = DynamoDBDocument.from(
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME!;
 
-// Function to fetch photos
+// Function to fetch photos with pagination
 export const fetchPhotos = async () => {
   try {
-    const result = await dynamoDb.scan({
-      TableName: TABLE_NAME,
-      FilterExpression: "#type = :type",
-      ExpressionAttributeNames: {
-        "#type": "type",
-      },
-      ExpressionAttributeValues: {
-        ":type": "image",
-      },
-    });
+    let items: any[] = [];
+    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
 
-    if (!result.Items) {
-      return [];
-    }
+    do {
+      const result = await dynamoDb.scan({
+        TableName: TABLE_NAME,
+        FilterExpression: "#type = :type",
+        ExpressionAttributeNames: {
+          "#type": "type",
+        },
+        ExpressionAttributeValues: {
+          ":type": "image",
+        },
+        ...(lastEvaluatedKey && { ExclusiveStartKey: lastEvaluatedKey }),
+      });
+
+      // Add items from this scan to the total items
+      if (result.Items) {
+        items = [...items, ...result.Items];
+      }
+
+      // Update the last evaluated key for next iteration
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
 
     // Process each item to handle binary image data
     const processedPhotos = await Promise.all(
-      result.Items.map(async (item) => {
+      items.map(async (item) => {
         if (item.src?.B) {
           const binary = item.src.B;
           const base64 = Buffer.from(binary).toString("base64");
           const mimeType = item.mimeType || "image/jpeg";
           item.src = `data:${mimeType};base64,${base64}`;
         }
-
         return {
           id: item.rkpai,
           src: item.src,
@@ -55,6 +65,8 @@ export const fetchPhotos = async () => {
         };
       }),
     );
+
+    console.log(`Total photos fetched: ${processedPhotos.length}`);
     return processedPhotos;
   } catch (error) {
     console.error("Error fetching photos:", error);
@@ -63,14 +75,13 @@ export const fetchPhotos = async () => {
 };
 
 // Initialize an empty array to hold the photos data
-let photosData: any[] = [];
+export let photosData: any[] = [];
 
 try {
   const processedPhotos = await fetchPhotos();
-
   // Add the processed photos to the photosData array
   photosData = processedPhotos;
-  // console.log("Photos data fetched successfully.", photosData);
+
   if (photosData.length === 0) {
     console.log("No photos data available.");
   }
@@ -78,4 +89,4 @@ try {
   console.error("Error fetching photos data:", error);
 }
 
-export { photosData };
+export default photosData;
