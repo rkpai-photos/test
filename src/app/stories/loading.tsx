@@ -20,7 +20,7 @@ export default function Loading() {
       <motion.div
         className="absolute text-green-800 text-8xl"
         animate={{ x: ["-100vw", "100vw"], y: ["-50vh", "50vh"], rotate: [0, 20, -20, 0] }}
-        transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
+        transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
       >
         <GiHummingbird />
       </motion.div>
