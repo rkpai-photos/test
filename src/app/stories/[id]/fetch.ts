@@ -1,7 +1,6 @@
+/* eslint-disable */
 import { DynamoDB } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
-import Header from "@/sections/Nav";
-import GalleryGrid from "@/components/GalleryGrid";
 
 // Initialize DynamoDB client
 const dynamoDb = DynamoDBDocument.from(
@@ -16,9 +15,9 @@ const dynamoDb = DynamoDBDocument.from(
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME!;
 
-async function fetchPhotos() {
+// Function to fetch photos
+export const fetchPhotos = async () => {
   try {
-    // Fetch items from DynamoDB
     const result = await dynamoDb.scan({
       TableName: TABLE_NAME,
       FilterExpression: "#type = :type",
@@ -37,15 +36,13 @@ async function fetchPhotos() {
     // Process each item to handle binary image data
     const processedPhotos = await Promise.all(
       result.Items.map(async (item) => {
-        // If src is binary data (Buffer), convert it to base64
         if (item.src?.B) {
           const binary = item.src.B;
           const base64 = Buffer.from(binary).toString("base64");
-          const mimeType = item.mimeType || "image/jpeg"; // Default to JPEG if not specified
+          const mimeType = item.mimeType || "image/jpeg";
           item.src = `data:${mimeType};base64,${base64}`;
         }
 
-        // If src is an S3 URL or already a string, use it as is
         return {
           id: item.rkpai,
           src: item.src,
@@ -58,41 +55,27 @@ async function fetchPhotos() {
         };
       }),
     );
-
     return processedPhotos;
   } catch (error) {
     console.error("Error fetching photos:", error);
     return [];
   }
-}
+};
 
-export default async function StoriesPage() {
-  const photosData = await fetchPhotos();
+// Initialize an empty array to hold the photos data
+let photosData: any[] = [];
 
-  // Add error handling for empty data
-  if (!photosData || photosData.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-        <div className="mb-10 pb-10">
-          <Header />
-        </div>
-        <div className="container mx-auto px-4 py-12 text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
-            No photos available
-          </h2>
-        </div>
-      </div>
-    );
+try {
+  const processedPhotos = await fetchPhotos();
+
+  // Add the processed photos to the photosData array
+  photosData = processedPhotos;
+  // console.log("Photos data fetched successfully.", photosData);
+  if (photosData.length === 0) {
+    console.log("No photos data available.");
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-      <div className="mb-10 pb-10">
-        <Header />
-      </div>
-      <div className="container mx-auto px-4 py-12">
-        <GalleryGrid images={photosData} />
-      </div>
-    </div>
-  );
+} catch (error) {
+  console.error("Error fetching photos data:", error);
 }
+
+export { photosData };

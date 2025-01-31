@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Calendar, Heart, Share2 } from "lucide-react";
+import { Calendar, Heart, Share2 } from "lucide-react";
 
 interface PhotoDetailClientProps {
   initialCreatedAt: string | Date;
@@ -14,19 +14,17 @@ export default function PhotoDetailClient({
 
   const handleLikeToggle = () => {
     setIsLiked(!isLiked);
-    // TODO: Implement actual like functionality with backend
   };
 
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 w-full md:w-auto">
       <div className="flex flex-col md:flex-row items-center text-gray-600 dark:text-gray-300 bg-white/20 dark:bg-gray-700/20 px-3 py-1 md:px-4 md:py-2 rounded-full font-light w-full md:w-auto">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <MapPin className="w-4 h-4 md:w-5 md:h-5 mr-2" />
             <span className="font-mont mr-4 text-xs sm:text-sm md:text-base truncate max-w-[150px] sm:max-w-[200px]">
-              Location Name
             </span>
-          </div>
+          </div>*/}
           <div className="flex items-center">
             <Calendar className="w-4 h-4 md:w-5 md:h-5 mr-2" />
             <span className="font-mont text-xs sm:text-sm md:text-base">

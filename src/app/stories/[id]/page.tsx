@@ -1,4 +1,4 @@
-import { fetchPhotos } from "@/lib/fetch";
+import { fetchPhotos } from "./fetch";
 import Image from "next/image";
 import { Camera, BookOpen } from "lucide-react";
 import TypeWriter from "./TypeWriter";
