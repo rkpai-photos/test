@@ -4,7 +4,7 @@ import About from "@/sections/About";
 import Projects from "@/sections/Projects";
 import SlideShow from "@/sections/SlideShow";
 import Footer from "@/sections/Footer";
-import { fetchPhotos } from "@/lib/fetch"; 
+import { fetchPhotos } from "@/app/stories/[id]/fetch";
 
 export default async function Home() {
   const photos = await fetchPhotos();
