@@ -66,7 +66,6 @@ export const fetchPhotos = async () => {
       }),
     );
 
-    console.log(`Total photos fetched: ${processedPhotos.length}`);
     return processedPhotos;
   } catch (error) {
     console.error("Error fetching photos:", error);
