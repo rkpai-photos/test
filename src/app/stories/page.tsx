@@ -1,3 +1,6 @@
+
+export const dynamic = "force-dynamic"; // Force dynamic rendering
+
 /* eslint-disable */
 // @ts-nocheck
 
@@ -25,35 +28,27 @@ async function fetchPhotos() {
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
 
     do {
-      const result = await dynamoDb.scan({
+      // Explicitly annotate the result as 'any' (or a proper type if available)
+      const result: any = await dynamoDb.scan({
         TableName: TABLE_NAME,
         FilterExpression: "#type = :type",
-        ExpressionAttributeNames: {
-          "#type": "type",
-        },
-        ExpressionAttributeValues: {
-          ":type": "image",
-        },
+        ExpressionAttributeNames: { "#type": "type" },
+        ExpressionAttributeValues: { ":type": "image" },
         ...(lastEvaluatedKey && { ExclusiveStartKey: lastEvaluatedKey }),
       });
 
-      // Add items from this scan to the total items
       if (result.Items) {
         items = [...items, ...result.Items];
       }
-
-      // Update the last evaluated key for next iteration
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);
 
-    // Process items
     const processedPhotos = await Promise.all(
       items.map(async (item) => {
-        // If src is binary data (Buffer), convert it to base64
         if (item.src?.B) {
           const binary = item.src.B;
           const base64 = Buffer.from(binary).toString("base64");
-          const mimeType = item.mimeType || "image/jpeg"; // Default to JPEG if not specified
+          const mimeType = item.mimeType || "image/jpeg";
           item.src = `data:${mimeType};base64,${base64}`;
         }
 
@@ -67,7 +62,7 @@ async function fetchPhotos() {
           story: item.story,
           createdAt: item.createdAt,
         };
-      }),
+      })
     );
 
     console.log(`Total photos fetched: ${processedPhotos.length}`);
@@ -78,10 +73,10 @@ async function fetchPhotos() {
   }
 }
 
+
 export default async function StoriesPage() {
   const photosData = await fetchPhotos();
 
-  // Add error handling for empty data
   if (!photosData || photosData.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
