@@ -1,6 +1,8 @@
+export const dynamic = "force-dynamic"; // Force dynamic rendering
+
 /* eslint-disable */
 // @ts-nocheck
-import { DynamoDB } from "@aws-sdk/client-dynamodb";
+import { DynamoDB, ScanCommandOutput } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 
 // Initialize DynamoDB client
@@ -23,7 +25,7 @@ export const fetchPhotos = async () => {
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
 
     do {
-      const result = await dynamoDb.scan({
+      const result: ScanCommandOutput = await dynamoDb.scan({
         TableName: TABLE_NAME,
         FilterExpression: "#type = :type",
         ExpressionAttributeNames: {
