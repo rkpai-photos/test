@@ -6,14 +6,7 @@ import { Camera, BookOpen } from "lucide-react";
 import TypeWriter from "./TypeWriter";
 import PhotoDetailClient from "./PhotoClinet";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const photos = await fetchPhotos();
-  const photo = photos.find((p) => p.id === params.id);
-  return {
-    title: photo ? `Photo ${photo.id}` : "Photo Not Found",
-    description: photo?.story || "Photo details",
-  };
-}
+
 
 export default async function PhotoDetailPage({
   params,
